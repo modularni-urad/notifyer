@@ -1,12 +1,15 @@
 import { MULTITENANT } from '../consts'
 
-const MAPPING = {
-
-}
+const MAPPING = (function() {
+  try {
+    return JSON.parse(process.env.DOMAIN_TO_ORGID)
+  } catch(err) {
+    throw new Error('process.env.DOMAIN_TO_ORGID must be JSON string')
+  }   
+})()
 
 function getOrgID (req) {
-  const domain = process.env.DOMAIN || req.hostname
-  req.orgid = MAPPING[domain]
+  req.orgid = MAPPING[req.hostname]
   return req.orgid !== undefined
 }
 

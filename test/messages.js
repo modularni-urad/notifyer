@@ -45,5 +45,18 @@ module.exports = (g) => {
       res.should.have.status(200)
       res.body.length.should.eql(0)
     })
+
+    it('shall create another', async () => {
+      const another = Object.assign({}, p, { content: 'anohter' })
+      const res = await r.post('/').send(another)
+      res.should.have.status(200)
+    })
+
+    it('shall get message list again', async () => {
+      const res = await r.get('/').set('Authorization', 'Bearer f')
+      res.should.have.status(200)
+      res.body.length.should.eql(1)
+    })
+
   })
 }

@@ -8,9 +8,15 @@ function list (uid, orgid, knex) {
   return knex(TABLE_NAMES.MESSAGES).where(cond).whereNull('noticed')
 }
 
-function create(body, orgid, knex) {
-  const data = MULTITENANT ? Object.assign(body, { orgid }) : body
-  return knex(TABLE_NAMES.MESSAGES).insert(data).returning('*')
+async function _nextID (orgid, knex) {
+  const m = await knex(TABLE_NAMES.MESSAGES).max('id as a').where({ orgid })
+  return m.length && m[0].a ? m[0].a + 1 : 1
+}
+
+async function create(body, orgid, knex) {
+  const id = MULTITENANT ? await _nextID(orgid, knex) : null
+  MULTITENANT && Object.assign(body, { orgid, id })
+  return knex(TABLE_NAMES.MESSAGES).insert(body).returning('*')
 }
 
 function update(id, orgid, uid, knex) {

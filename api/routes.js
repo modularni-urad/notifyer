@@ -1,13 +1,14 @@
 import _ from 'underscore'
 import Middleware from './middleware'
 import loadOrgID from './orgid_man'
+import filterIPs from './ipwhitelist'
 
 export default (ctx) => {
   const { knex, auth, express } = ctx
   const JSONBodyParser = express.json()
   const app = express()
 
-  app.post('/', loadOrgID, JSONBodyParser, (req, res, next) => {
+  app.post('/', filterIPs, loadOrgID, JSONBodyParser, (req, res, next) => {
     Middleware.create(req.body, req.orgid, knex)
       .then(data => res.json(data))
       .catch(next)

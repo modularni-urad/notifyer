@@ -6,7 +6,7 @@ chai.should()
 
 module.exports = (g) => {
   //
-  const r = chai.request(g.baseurl)
+  const r = chai.request(g.baseurl + '/api.domain1.cz')
   const p = {
     content: 'new taskman item',
     uid: '42',

@@ -3,7 +3,9 @@ import { TABLE_NAMES, MULTITENANT } from '../consts'
 
 export default { create, list, update }
 
-function list (uid, orgid, knex) {
+function list (user, orgid, knex) {
+  if (! user) return []
+  const uid = user.id
   const cond = MULTITENANT ? { uid, orgid } : { uid }
   return knex(TABLE_NAMES.MESSAGES).where(cond).whereNull('noticed')
 }

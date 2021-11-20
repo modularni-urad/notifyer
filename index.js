@@ -1,10 +1,14 @@
 import path from 'path'
 import express from 'express'
-import initErrorHandlers from 'modularni-urad-utils/error_handlers'
-import { 
-  required, requireMembership, isMember, getUID 
-} from 'modularni-urad-utils/auth'
-import initDB from 'modularni-urad-utils/db'
+import cors from 'cors'
+import {
+  auth,
+  initDB,
+  initErrorHandlers,
+  initConfigManager,
+  CORSconfigCallback,
+  createLoadOrgConfigMW
+} from 'modularni-urad-utils'
 import initRoutes from './api/routes'
 
 export default async function init (mocks = null) {
@@ -12,11 +16,19 @@ export default async function init (mocks = null) {
   const knex = mocks
     ? await mocks.dbinit(migrationsDir)
     : await initDB(migrationsDir)
+  await initConfigManager(process.env.CONFIG_FOLDER)
 
-  const auth = { required, requireMembership, isMember, getUID }
-  const appContext = { express, knex, auth }
-
-  const app = initRoutes(appContext)
+  const app = express()
+  process.env.NODE_ENV !== 'test' && app.use(cors(CORSconfigCallback))
+  
+  const ctx = {
+    express, knex, auth, JSONBodyParser: express.json()
+  }
+  const api = initRoutes(ctx)  
+  const loadOrgConfig = createLoadOrgConfigMW(req => {
+    return req.params.domain
+  })
+  app.use('/:domain/', loadOrgConfig, api)
 
   initErrorHandlers(app)
 

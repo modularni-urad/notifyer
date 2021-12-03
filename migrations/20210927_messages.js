@@ -1,17 +1,14 @@
-import _ from 'underscore'
-import { MULTITENANT, TABLE_NAMES } from '../consts'
+import { TABLE_NAMES } from '../consts'
 
-function setupMultitenantID (table) {
-  table.integer('id').notNullable()
-  table.integer('orgid').notNullable()
-  table.primary(['id', 'orgid'])
+function tableName (tname) {
+  return process.env.CUSTOM_MIGRATION_SCHEMA 
+    ? `${process.env.CUSTOM_MIGRATION_SCHEMA}.${tname}`
+    : tname
 }
 
 exports.up = (knex, Promise) => {
-  return knex.schema.createTable(TABLE_NAMES.MESSAGES, (table) => {
-    MULTITENANT 
-      ? setupMultitenantID(table) 
-      : table.increments('id').primary()
+  return knex.schema.createTable(tableName(TABLE_NAMES.MESSAGES), (table) => {
+    table.increments('id').primary()
     table.string('content', 64).notNullable()
     table.string('uid').notNullable()
     table.string('type', 16).notNullable()
@@ -22,5 +19,5 @@ exports.up = (knex, Promise) => {
 }
 
 exports.down = (knex, Promise) => {
-  return knex.schema.dropTable(TABLE_NAMES.MESSAGES)
+  return knex.schema.dropTable(tableName(TABLE_NAMES.MESSAGES))
 }

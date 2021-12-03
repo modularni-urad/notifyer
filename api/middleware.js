@@ -4,7 +4,7 @@ import { TABLE_NAMES, getQB } from '../consts'
 export default { create, list, update }
 
 function list (user, knex, schema) {
-  if (! user) return []
+  if (! user) return new Promise(resolve => resolve([]))
   return getQB(knex, TABLE_NAMES.MESSAGES, schema)
     .where({ uid: user.id }).whereNull('noticed')
 }

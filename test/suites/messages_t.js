@@ -4,12 +4,15 @@ module.exports = (g) => {
   const _ = g.require('underscore')
   const p = {
     content: 'new taskman item',
-    uid: '42',
     type: 'new',
     data: 'taskman/43'
   }
 
   return describe('messages', () => {
+    before(done => {
+      p.uid = g.mockUser.id
+      done()
+    })
     //
     // it('must not create a new item wihout auth', async () => {
     //   const res = await r.post('/').send(p)
